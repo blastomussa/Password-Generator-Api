@@ -6,44 +6,136 @@ import random
 app = Flask(__name__)
 api = Api(app)
 
+#DEFAULT VALUES
+# max and min string lengths
+MAX=16
+MIN=6
+
+#number of words
+NUM_WORDS=2
+
+#Capital letters
+CAPS = True
+NUM_CAPS = 1
+LOC_CAPS = 'first' #first, random, last
+
+#integers
+INTS = True
+NUM_INTS = 4
+LOC_INTS = 'last' #first, last, random
+
+#Special Characters
+SPECS = True
+NUM_SPECS = 1
+LOC_SPECS = 'last' #first, last, random
+
+#Replace Characters
+REP = False
 
 
-# FOR HUMAN READABLE PW GENERATION
+# Build length dictionary and word list
 words_dict = get_dict()
-words = {}
-# remove proper words from dict and add length key: value for each word to new dict
+lengths = {}
+words = []
+# remove proper words from list
 for word in words_dict:
     if word.islower():
-        words.update({word: len(word)})
+        words.append(word)
+        lengths.update({word: len(word)})
 
 
-#needs UTF or ASCII switch and defaults
-#needs special character switch
-#needs good random module
-#needs good english dictionary
-#needs string len min and max
-#human readable or gibberish
-    #number of words
-#number of upper and lower
-#number of special chacters
-#number of integers
-#choose where uppercase letters are; beginning, end, random
-#needs defaults for everything; call with no variables should work
-#no puts/deletes/posts only get
-#api throttling so I dont get DOSed
-#bulk; output csv for download
-#how do I run app on namecheap host under blastomussa.dev domain?
-
+# API Resource
 @api.resource('/generate')
 class Generate(Resource):
+    # demo
     def get(self):
-        choices = []
-        for word in words:
-            if words[word] == 4:
-                choices.append(word)
-        return {"password": random.choice(choices)}
 
+        #Concat random words and make sure final string is in MIN/MAX range
+        i = 0
+        string = ''
+        total_length = NUM_INTS + NUM_SPECS
+        while i<NUM_WORDS:
+            i = i + 1
+            word = random.choice(words)
+            string = string + word
+            total_length = total_length +lengths[word]
+            # reset and try again if string is too long
+            if total_length > MAX or total_length < MIN:
+                string = ''
+                i = 0
+                total_length = NUM_INTS + NUM_SPECS
+
+        #Add Capitols
+        if CAPS == True:
+            if LOC_CAPS == 'first':
+                print('first')
+            elif LOC_CAPS == 'last':
+                print('last')
+            elif LOC_CAPS == 'random':
+                print('random')
+            else:
+                print("No Match")
+
+        #Add Integers
+        if INTS == True:
+            # build approriate range
+            i = 0
+            range = 1
+            while i < NUM_INTS:
+                i=i+1
+                range = range * 10
+            integer = random.randrange(range)
+
+            # elif switch for integer location
+            if LOC_INTS == 'first':
+                string = str(integer) + string
+            elif LOC_INTS == 'last':
+                string = string + str(integer)
+            elif LOC_INTS == 'random':
+                for int in str(integer):
+                    length = len(string)
+                    index = random.randrange(length)
+                    string = string[:index] + int + string[index:]
+            else:
+                pass
+
+        #Add Special Characters
+        if SPECS == True:
+            if LOC_SPECS == 'first':
+                print('first')
+            elif LOC_SPECS == 'last':
+                print('last')
+            elif LOC_SPECS == 'random':
+                print('random')
+            else:
+                print("No Match")
+
+        #Replace characters
+        if REP == True:
+            pass
+
+
+        return {"password": string}
 
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+    #needs UTF or ASCII switch and defaults
+    #needs special character switch
+    #needs good random module
+    #needs good english dictionary
+    #needs string len min and max
+    #human readable or gibberish
+        #number of words
+    #number of upper and lower
+    #number of special chacters
+    #number of integers
+    #choose where uppercase letters are; beginning, end, random
+    #needs defaults for everything; call with no variables should work
+    #no puts/deletes/posts only get
+    #api throttling so I dont get DOSed
+    #bulk; output csv for download
+    #how do I run app on namecheap host under blastomussa.dev domain?

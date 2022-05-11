@@ -10,7 +10,7 @@ get_args.add_argument("type", type=str, help="UTF or ASCII")
 
         #args = get_args.parse_args()
 #https://stackoverflow.com/questions/30779584/flask-restful-passing-parameters-to-get-request
-#use marshmello?
+#use marshmellow?
 @api.resource('/')
 class Foo(Resource):
     def get(self):
