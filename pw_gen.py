@@ -28,10 +28,10 @@ LOC_INTS = 'last' #first, last, random
 SPECS = True
 NUM_SPECS = 1
 LOC_SPECS = 'last' #first, last, random
+SPECS_LIST = ["!","@","#","$","%","^","&","*","_","+","-","=","?","<",">","|"]
 
 #Replace Characters
 REP = False
-
 
 # Build length dictionary and word list
 words_dict = get_dict()
@@ -42,7 +42,6 @@ for word in words_dict:
     if word.islower():
         words.append(word)
         lengths.update({word: len(word)})
-
 
 # API Resource
 @api.resource('/generate')
@@ -85,35 +84,35 @@ class Generate(Resource):
                 i=i+1
                 range = range * 10
             integer = random.randrange(range)
-
             # elif switch for integer location
-            if LOC_INTS == 'first':
-                string = str(integer) + string
-            elif LOC_INTS == 'last':
-                string = string + str(integer)
+            if LOC_INTS == 'first': string = str(integer) + string
+            elif LOC_INTS == 'last': string = string + str(integer)
             elif LOC_INTS == 'random':
                 for int in str(integer):
                     length = len(string)
                     index = random.randrange(length)
                     string = string[:index] + int + string[index:]
-            else:
-                pass
+            else: pass
+
 
         #Add Special Characters
         if SPECS == True:
-            if LOC_SPECS == 'first':
-                print('first')
-            elif LOC_SPECS == 'last':
-                print('last')
-            elif LOC_SPECS == 'random':
-                print('random')
-            else:
-                print("No Match")
+            i = 0
+            while i < NUM_SPECS:
+                i = i + 1
+                char = random.choice(SPECS_LIST)
+                if LOC_SPECS == 'first': string = char + string
+                elif LOC_SPECS == 'last': string = string + char
+                elif LOC_SPECS == 'random':
+                    length = len(string)
+                    index = random.randrange(length)
+                    string = string[:index] + char + string[index:]
+                else:
+                    print("No Match")
 
         #Replace characters
         if REP == True:
             pass
-
 
         return {"password": string}
 
