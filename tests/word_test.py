@@ -9,12 +9,19 @@ for word in words_dict:
     if word.islower():
         words.update({word: len(word)})
 
+string = "somerandomstring"
 
-LOC_CAPS = 'fir'
+
+
+'''
+LOC_CAPS = 'first'
 if LOC_CAPS == 'first': print('first')
 elif LOC_CAPS == 'last': print('last')
 elif LOC_CAPS == 'random': print('random')
 else: print("No Match")
+'''
+
+
 '''
 # max and min string lengths
 MAX=24

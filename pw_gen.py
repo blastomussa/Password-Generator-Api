@@ -16,8 +16,8 @@ NUM_WORDS=2
 
 #Capital letters
 CAPS = True
-NUM_CAPS = 1
-LOC_CAPS = 'first' #first, random, last
+NUM_CAPS = 2
+LOC_CAPS = 'random' #first, random, last
 
 #integers
 INTS = True
@@ -30,18 +30,17 @@ NUM_SPECS = 1
 LOC_SPECS = 'last' #first, last, random
 SPECS_LIST = ["!","@","#","$","%","^","&","*","_","+","-","=","?","<",">","|"]
 
-#Replace Characters
-REP = False
+#Substitute Characters
+SUB = False
 
 # Build length dictionary and word list
 words_dict = get_dict()
 lengths = {}
 words = []
-# remove proper words from list
 for word in words_dict:
-    if word.islower():
+    if word.islower(): #only match lower case words
         words.append(word)
-        lengths.update({word: len(word)})
+        lengths.update({word:len(word)})
 
 # API Resource
 @api.resource('/generate')
@@ -49,72 +48,91 @@ class Generate(Resource):
     # demo
     def get(self):
 
+        self.get_words()
+        self.add_caps()
+        self.add_ints()
+        self.add_specs()
+        self.add_subs()
+
+        return {"password": self.string}
+
+
+    def get_words(self):
         #Concat random words and make sure final string is in MIN/MAX range
         i = 0
-        string = ''
+        self.string = ''
         total_length = NUM_INTS + NUM_SPECS
-        while i<NUM_WORDS:
+        while i < NUM_WORDS:
             i = i + 1
             word = random.choice(words)
-            string = string + word
+            self.string = self.string + word
             total_length = total_length +lengths[word]
             # reset and try again if string is too long
             if total_length > MAX or total_length < MIN:
-                string = ''
+                self.string = ''
                 i = 0
                 total_length = NUM_INTS + NUM_SPECS
 
-        #Add Capitols
-        if CAPS == True:
-            if LOC_CAPS == 'first':
-                print('first')
-            elif LOC_CAPS == 'last':
-                print('last')
-            elif LOC_CAPS == 'random':
-                print('random')
-            else:
-                print("No Match")
 
-        #Add Integers
+    def add_caps(self):
+        if CAPS == True:
+            i = 0
+            start = 0
+            end = -1
+            while i < NUM_CAPS:
+                i = i + 1
+                if LOC_CAPS == 'first':
+                    self.string = self.string.replace(self.string[start],self.string[start].upper(),1)
+                elif LOC_CAPS == 'last':
+                    self.string = self.string.replace(self.string[end],self.string[end].upper(),1)
+                elif LOC_CAPS == 'random':
+                    length = len(self.string)
+                    index = random.randrange(length)
+                    self.string = self.string.replace(self.string[index],self.string[index].upper(),1)
+                else: pass
+                start = start + 1
+                end = end - 1
+
+
+    def add_ints(self):
         if INTS == True:
             # build approriate range
             i = 0
             range = 1
             while i < NUM_INTS:
-                i=i+1
+                i = i + 1
                 range = range * 10
             integer = random.randrange(range)
             # elif switch for integer location
-            if LOC_INTS == 'first': string = str(integer) + string
-            elif LOC_INTS == 'last': string = string + str(integer)
+            if LOC_INTS == 'first':
+                self.string = str(integer) + self.string
+            elif LOC_INTS == 'last':
+                self.string = self.string + str(integer)
             elif LOC_INTS == 'random':
                 for int in str(integer):
-                    length = len(string)
+                    length = len(self.string)
                     index = random.randrange(length)
-                    string = string[:index] + int + string[index:]
+                    self.string = self.string[:index] + int + self.string[index:]
             else: pass
 
 
-        #Add Special Characters
+    def add_specs(self):
         if SPECS == True:
             i = 0
             while i < NUM_SPECS:
                 i = i + 1
                 char = random.choice(SPECS_LIST)
-                if LOC_SPECS == 'first': string = char + string
-                elif LOC_SPECS == 'last': string = string + char
+                if LOC_SPECS == 'first': self.string = char + self.string
+                elif LOC_SPECS == 'last': self.string = self.string + char
                 elif LOC_SPECS == 'random':
-                    length = len(string)
+                    length = len(self.string)
                     index = random.randrange(length)
-                    string = string[:index] + char + string[index:]
-                else:
-                    print("No Match")
+                    self.string = self.string[:index] + char + self.string[index:]
+                else: pass
 
-        #Replace characters
-        if REP == True:
-            pass
 
-        return {"password": string}
+    def add_subs(self):
+        pass
 
 
 if __name__ == '__main__':
