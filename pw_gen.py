@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Api, Resource
 from english_dictionary.scripts.read_pickle import get_dict
 import random
@@ -6,40 +6,24 @@ import random
 app = Flask(__name__)
 api = Api(app)
 
-#DEFAULT VALUES
-# max and min string lengths
-MAX = 12
+MAX = 16
 MIN = 4
-
-#number of words
-NUM_WORDS=2
-
-#Capital letters
+NUM_WORDS=3
 CAPS = True
 NUM_CAPS = 1
 LOC_CAPS = 'first' #first, random, last
-
-#integers
 INTS = True
 NUM_INTS = 2
 LOC_INTS = 'last' #first, last, random
-
-#Special Characters
 SPECS = True
 NUM_SPECS = 1
 LOC_SPECS = 'last' #first, last, random
 SPECS_LIST = ["!","@","#","$","%","^","&","*","_","+","-","=","?","<",">","|"]
-
-#Substitute Characters
-#LOGIC NOT BUILT YET
 SUBS = False
-
-#Gibberish
 GIB = False
-
-# Build GLOBAL length dictionary and word list
 WORDS = []
 LENGTHS = {}
+# Build GLOBAL length dictionary and word list
 words_dict = get_dict()
 for word in words_dict:
     if word.islower(): #only match lower case words
@@ -49,7 +33,9 @@ for word in words_dict:
 # API Resource
 @api.resource('/generate')
 class Generate(Resource):
+
     def get(self):
+        self.get_parameters()
         self.get_words()
         self.add_caps()
         self.add_ints()
@@ -57,6 +43,24 @@ class Generate(Resource):
         self.add_subs()
         self.gibberish()
         return {"password": self.string}
+
+    def get_parameters(self):
+        global MAX, MIN, NUM_WORDS, CAPS, NUM_CAPS, LOC_CAPS, INTS, NUM_INTS, LOC_INTS, SPECS, NUM_SPECS, LOC_SPECS, SPECS_LIST, SUBS, GIB
+        if request.args.get('MAX'): MAX = int(request.args.get('MAX'))
+        if request.args.get('MIN'): MIN = int(request.args.get('MIN'))
+        if request.args.get('NUM_WORDS'): NUM_WORDS = int(request.args.get('NUM_WORDS'))
+        if request.args.get('CAPS'): CAPS = int(request.args.get('CAPS'))
+        if request.args.get('NUM_CAPS'): NUM_CAPS = int(request.args.get('NUM_CAPS'))
+        if request.args.get('LOC_CAPS'): LOC_CAPS = int(request.args.get('LOC_CAPS'))
+        if request.args.get('INTS'): INTS = int(request.args.get('INTS'))
+        if request.args.get('NUM_INTS'): NUM_INTS = int(request.args.get('NUM_INTS'))
+        if request.args.get('LOC_INTS'): LOC_INTS = int(request.args.get('LOC_INTS'))
+        if request.args.get('SPECS'): SPECS = int(request.args.get('SPECS'))
+        if request.args.get('NUM_SPECS'): NUM_SPECS = int(request.args.get('NUM_SPECS'))
+        if request.args.get('LOC_SPECS'): LOC_SPECS = int(request.args.get('LOC_SPECS'))
+        if request.args.get('SPECS_LIST'): SPECS_LIST = int(request.args.get('SPECS_LIST'))
+        if request.args.get('SUBS'): SUBS = int(request.args.get('SUBS'))
+        if request.args.get('GIB'): GIB = int(request.args.get('GIB'))
 
 
     def get_words(self):
@@ -86,6 +90,7 @@ class Generate(Resource):
                 if LOC_CAPS == 'first':
                     self.string = self.string.replace(self.string[start],self.string[start].upper(),1)
                 elif LOC_CAPS == 'last':
+                    # sometimes matches earleir character than the last, hmmm whats the solution
                     self.string = self.string.replace(self.string[end],self.string[end].upper(),1)
                 elif LOC_CAPS == 'random':
                     length = len(self.string)
@@ -105,7 +110,6 @@ class Generate(Resource):
                 i = i + 1
                 range = range * 10
             integer = random.randrange((range/10),range)
-            # elif switch for integer location
             if LOC_INTS == 'first':
                 self.string = str(integer) + self.string
             elif LOC_INTS == 'last':
