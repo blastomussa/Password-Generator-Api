@@ -16,8 +16,8 @@ NUM_WORDS=2
 
 #Capital letters
 CAPS = True
-NUM_CAPS = 2
-LOC_CAPS = 'random' #first, random, last
+NUM_CAPS = 1
+LOC_CAPS = 'first' #first, random, last
 
 #integers
 INTS = True
@@ -31,6 +31,7 @@ LOC_SPECS = 'last' #first, last, random
 SPECS_LIST = ["!","@","#","$","%","^","&","*","_","+","-","=","?","<",">","|"]
 
 #Substitute Characters
+#LOGIC NOT BUILT YET
 SUB = False
 
 # Build length dictionary and word list
@@ -47,13 +48,11 @@ for word in words_dict:
 class Generate(Resource):
     # demo
     def get(self):
-
         self.get_words()
         self.add_caps()
         self.add_ints()
         self.add_specs()
         self.add_subs()
-
         return {"password": self.string}
 
 
@@ -102,7 +101,7 @@ class Generate(Resource):
             while i < NUM_INTS:
                 i = i + 1
                 range = range * 10
-            integer = random.randrange(range)
+            integer = random.randrange((range/10),range)
             # elif switch for integer location
             if LOC_INTS == 'first':
                 self.string = str(integer) + self.string
