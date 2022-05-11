@@ -8,8 +8,8 @@ api = Api(app)
 
 #DEFAULT VALUES
 # max and min string lengths
-MAX=16
-MIN=6
+MAX = 12
+MIN = 4
 
 #number of words
 NUM_WORDS=2
@@ -21,7 +21,7 @@ LOC_CAPS = 'first' #first, random, last
 
 #integers
 INTS = True
-NUM_INTS = 4
+NUM_INTS = 2
 LOC_INTS = 'last' #first, last, random
 
 #Special Characters
@@ -32,27 +32,30 @@ SPECS_LIST = ["!","@","#","$","%","^","&","*","_","+","-","=","?","<",">","|"]
 
 #Substitute Characters
 #LOGIC NOT BUILT YET
-SUB = False
+SUBS = False
 
-# Build length dictionary and word list
+#Gibberish
+GIB = False
+
+# Build GLOBAL length dictionary and word list
+WORDS = []
+LENGTHS = {}
 words_dict = get_dict()
-lengths = {}
-words = []
 for word in words_dict:
     if word.islower(): #only match lower case words
-        words.append(word)
-        lengths.update({word:len(word)})
+        WORDS.append(word)
+        LENGTHS.update({word:len(word)})
 
 # API Resource
 @api.resource('/generate')
 class Generate(Resource):
-    # demo
     def get(self):
         self.get_words()
         self.add_caps()
         self.add_ints()
         self.add_specs()
         self.add_subs()
+        self.gibberish()
         return {"password": self.string}
 
 
@@ -63,9 +66,9 @@ class Generate(Resource):
         total_length = NUM_INTS + NUM_SPECS
         while i < NUM_WORDS:
             i = i + 1
-            word = random.choice(words)
+            word = random.choice(WORDS)
             self.string = self.string + word
-            total_length = total_length +lengths[word]
+            total_length = total_length + LENGTHS[word]
             # reset and try again if string is too long
             if total_length > MAX or total_length < MIN:
                 self.string = ''
@@ -131,27 +134,24 @@ class Generate(Resource):
 
 
     def add_subs(self):
-        pass
+        #substitute characters in string
+        if SUBS == True:
+            pass
+
+
+    def gibberish(self):
+        #jumble string
+        if GIB == True:
+            pass
 
 
 if __name__ == '__main__':
     app.run(debug=True)
 
-
-
-    #needs UTF or ASCII switch and defaults
-    #needs special character switch
-    #needs good random module
-    #needs good english dictionary
-    #needs string len min and max
-    #human readable or gibberish
-        #number of words
-    #number of upper and lower
-    #number of special chacters
-    #number of integers
-    #choose where uppercase letters are; beginning, end, random
-    #needs defaults for everything; call with no variables should work
-    #no puts/deletes/posts only get
-    #api throttling so I dont get DOSed
-    #bulk; output csv for download
-    #how do I run app on namecheap host under blastomussa.dev domain?
+# ADD
+    # url variables
+    # POST/PUT/DELETE error handling
+    # Return codes
+    # throttling
+    # bulk? json output; add endpoint
+    # how do I run app on namecheap host under blastomussa.dev domain?
