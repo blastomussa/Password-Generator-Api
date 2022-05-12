@@ -6,9 +6,12 @@ import random
 app = Flask(__name__)
 api = Api(app)
 
+# this is the entry point
+application = app
+
 MAX = 16
 MIN = 4
-NUM_WORDS=3
+NUM_WORDS=2
 CAPS = True
 NUM_CAPS = 1
 LOC_CAPS = 'first' #first, random, last
@@ -31,7 +34,7 @@ for word in words_dict:
         LENGTHS.update({word:len(word)})
 
 # API Resource
-@api.resource('/generate')
+@api.resource('/')
 class Generate(Resource):
 
     def get(self):
@@ -153,9 +156,9 @@ if __name__ == '__main__':
     app.run()
 
 # ADD
-    # url variables
     # POST/PUT/DELETE error handling
     # Return codes
     # throttling
     # bulk? json output; add endpoint
     # how do I run app on namecheap host under blastomussa.dev domain?
+        # fucked up; tear down try again, find better instructions
