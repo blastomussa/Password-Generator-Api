@@ -138,19 +138,19 @@ class Generate(Resource):
 
 
     def add_subs(self):
-        #substitute characters in string
+        #substitute characters in string; leet
         if SUBS == True:
             pass
 
 
     def gibberish(self):
-        #jumble string
+        #scramble string
         if GIB == True:
             pass
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
 
 # ADD
     # url variables
