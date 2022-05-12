@@ -52,18 +52,17 @@ class Generate(Resource):
         if request.args.get('MAX'): MAX = int(request.args.get('MAX'))
         if request.args.get('MIN'): MIN = int(request.args.get('MIN'))
         if request.args.get('NUM_WORDS'): NUM_WORDS = int(request.args.get('NUM_WORDS'))
-        if request.args.get('CAPS'): CAPS = int(request.args.get('CAPS'))
+        if request.args.get('CAPS'): CAPS = bool(request.args.get('CAPS'))
         if request.args.get('NUM_CAPS'): NUM_CAPS = int(request.args.get('NUM_CAPS'))
-        if request.args.get('LOC_CAPS'): LOC_CAPS = int(request.args.get('LOC_CAPS'))
-        if request.args.get('INTS'): INTS = int(request.args.get('INTS'))
+        if request.args.get('LOC_CAPS'): LOC_CAPS = str(request.args.get('LOC_CAPS'))
+        if request.args.get('INTS'): INTS = bool(request.args.get('INTS'))
         if request.args.get('NUM_INTS'): NUM_INTS = int(request.args.get('NUM_INTS'))
-        if request.args.get('LOC_INTS'): LOC_INTS = int(request.args.get('LOC_INTS'))
-        if request.args.get('SPECS'): SPECS = int(request.args.get('SPECS'))
+        if request.args.get('LOC_INTS'): LOC_INTS = str(request.args.get('LOC_INTS'))
+        if request.args.get('SPECS'): SPECS = bool(request.args.get('SPECS'))
         if request.args.get('NUM_SPECS'): NUM_SPECS = int(request.args.get('NUM_SPECS'))
-        if request.args.get('LOC_SPECS'): LOC_SPECS = int(request.args.get('LOC_SPECS'))
-        if request.args.get('SPECS_LIST'): SPECS_LIST = int(request.args.get('SPECS_LIST'))
-        if request.args.get('SUBS'): SUBS = int(request.args.get('SUBS'))
-        if request.args.get('GIB'): GIB = int(request.args.get('GIB'))
+        if request.args.get('LOC_SPECS'): LOC_SPECS = str(request.args.get('LOC_SPECS'))
+        if request.args.get('SUBS'): SUBS = bool(request.args.get('SUBS'))
+        if request.args.get('GIB'): GIB = bool(request.args.get('GIB'))
 
 
     def get_words(self):
@@ -146,14 +145,26 @@ class Generate(Resource):
             pass
 
 
+
+
+
+
     def gibberish(self):
         #scramble string
+        print(GIB)
         if GIB == True:
-            pass
+            print(GIB)
+            l = len(self.string)
+            for c in self.string:
+                #switch characters in string randomly
+                index = random.randrange(l)
+                r = self.string[index]
+                self.string = self.string.replace(c,r,1)
+                self.string = self.string.replace(r,c,1)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
 
 # ADD
     # POST/PUT/DELETE error handling
