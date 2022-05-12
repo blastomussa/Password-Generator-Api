@@ -45,9 +45,12 @@ class Generate(Resource):
         self.add_specs()
         self.add_subs()
         self.gibberish()
-        return {"password": self.string}
+        pw = self.string
+        self.reset_defaults()
+        return {"password": pw}
 
     def get_parameters(self):
+        # Is there a better way to set defaults for paremeters than global vars?
         global MAX, MIN, NUM_WORDS, CAPS, NUM_CAPS, LOC_CAPS, INTS, NUM_INTS, LOC_INTS, SPECS, NUM_SPECS, LOC_SPECS, SPECS_LIST, SUBS, GIB
         if request.args.get('MAX'): MAX = int(request.args.get('MAX'))
         if request.args.get('MIN'): MIN = int(request.args.get('MIN'))
@@ -155,6 +158,25 @@ class Generate(Resource):
                 r = self.string[index]
                 self.string = self.string.replace(c,r,1)
                 self.string = self.string.replace(r,c,1)
+
+
+    def reset_defaults(self):
+        global MAX, MIN, NUM_WORDS, CAPS, NUM_CAPS, LOC_CAPS, INTS, NUM_INTS, LOC_INTS, SPECS, NUM_SPECS, LOC_SPECS, SPECS_LIST, SUBS, GIB
+        MAX = 16
+        MIN = 4
+        NUM_WORDS=2
+        CAPS = True
+        NUM_CAPS = 1
+        LOC_CAPS = 'first' #first, random, last
+        INTS = True
+        NUM_INTS = 2
+        LOC_INTS = 'last' #first, last, random
+        SPECS = True
+        NUM_SPECS = 1
+        LOC_SPECS = 'last' #first, last, random
+        SUBS = False
+        GIB = False
+        self.string = ''
 
 
 if __name__ == '__main__':
