@@ -36,7 +36,6 @@ for word in words_dict:
 # API Resource
 @api.resource('/')
 class Generate(Resource):
-
     def get(self):
         self.get_parameters()
         self.get_words()
