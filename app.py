@@ -145,15 +145,9 @@ class Generate(Resource):
             pass
 
 
-
-
-
-
     def gibberish(self):
         #scramble string
-        print(GIB)
         if GIB == True:
-            print(GIB)
             l = len(self.string)
             for c in self.string:
                 #switch characters in string randomly
@@ -164,7 +158,7 @@ class Generate(Resource):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
 
 # ADD
     # POST/PUT/DELETE error handling
