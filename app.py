@@ -1,3 +1,4 @@
+# v0.1
 from flask import Flask, request
 from flask_restful import Api, Resource
 from english_dictionary.scripts.read_pickle import get_dict
