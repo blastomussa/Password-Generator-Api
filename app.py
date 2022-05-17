@@ -1,30 +1,15 @@
-# v0.1
-from flask import Flask, request
-from flask_restful import Api, Resource
+# v1.0
+# vanilla flask
+from flask import Flask, json, jsonify, request, render_template
 from english_dictionary.scripts.read_pickle import get_dict
 import random
 
 app = Flask(__name__)
-api = Api(app)
 
-# this is the entry point
+# this is the entry point for wsgi
 application = app
 
-MAX = 16
-MIN = 4
-NUM_WORDS=2
-CAPS = True
-NUM_CAPS = 1
-LOC_CAPS = 'first' #first, random, last
-INTS = True
-NUM_INTS = 2
-LOC_INTS = 'last' #first, last, random
-SPECS = True
-NUM_SPECS = 1
-LOC_SPECS = 'last' #first, last, random
 SPECS_LIST = ["!","@","#","$","%","^","&","*","_","+","-","=","?","<",">","|"]
-SUBS = False
-GIB = False
 WORDS = []
 LENGTHS = {}
 # Build GLOBAL length dictionary and word list
@@ -34,158 +19,163 @@ for word in words_dict:
         WORDS.append(word)
         LENGTHS.update({word:len(word)})
 
-# API Resource
-@api.resource('/')
-class Generate(Resource):
-    def get(self):
-        self.get_parameters()
-        self.get_words()
-        self.add_caps()
-        self.add_ints()
-        self.add_specs()
-        self.add_subs()
-        self.gibberish()
-        pw = self.string
-        self.reset_defaults()
-        return {"password": pw}
+@app.route('/api/help')
+def help():
+    return render_template("help.html")
 
-    def get_parameters(self):
-        # Is there a better way to set defaults for paremeters than global vars?
-        global MAX, MIN, NUM_WORDS, CAPS, NUM_CAPS, LOC_CAPS, INTS, NUM_INTS, LOC_INTS, SPECS, NUM_SPECS, LOC_SPECS, SPECS_LIST, SUBS, GIB
-        if request.args.get('MAX'): MAX = int(request.args.get('MAX'))
-        if request.args.get('MIN'): MIN = int(request.args.get('MIN'))
-        if request.args.get('NUM_WORDS'): NUM_WORDS = int(request.args.get('NUM_WORDS'))
-        if request.args.get('CAPS'): CAPS = bool(request.args.get('CAPS'))
-        if request.args.get('NUM_CAPS'): NUM_CAPS = int(request.args.get('NUM_CAPS'))
-        if request.args.get('LOC_CAPS'): LOC_CAPS = str(request.args.get('LOC_CAPS'))
-        if request.args.get('INTS'): INTS = bool(request.args.get('INTS'))
-        if request.args.get('NUM_INTS'): NUM_INTS = int(request.args.get('NUM_INTS'))
-        if request.args.get('LOC_INTS'): LOC_INTS = str(request.args.get('LOC_INTS'))
-        if request.args.get('SPECS'): SPECS = bool(request.args.get('SPECS'))
-        if request.args.get('NUM_SPECS'): NUM_SPECS = int(request.args.get('NUM_SPECS'))
-        if request.args.get('LOC_SPECS'): LOC_SPECS = str(request.args.get('LOC_SPECS'))
-        if request.args.get('SUBS'): SUBS = bool(request.args.get('SUBS'))
-        if request.args.get('GIB'): GIB = bool(request.args.get('GIB'))
+@app.route('/api/v1', methods=['GET','PUT','POST','DELETE'])
+def generate_pw():
+    method = request.method
+    bad_request = False
+    choices = set(('first','last','random'))
+    if method == 'GET':
+        # get URL parameter variables and validate user input
+        max = request.args.get('max', default = 18, type = int)
+        min = request.args.get('min', default = 8, type = int)
+        if max > 100 or max < min: bad_request = True
+        if min < 0 or min > max: bad_request = True
+
+        num_words = request.args.get('num_words', default = 2, type = int)
+        if num_words < 0 or num_words > 25: bad_request = True
+
+        caps = request.args.get('caps', default = True, type = bool)
+        num_caps = request.args.get('num_caps', default = 1, type = int)
+        if num_caps < 0 or num_caps > max: bad_request = True
+        loc_caps = request.args.get('loc_caps', default = 'first', type = str).lower()
+        if loc_caps not in choices:
+            bad_request = True
+
+        ints = request.args.get('ints', default = True, type = bool)
+        num_ints = request.args.get('num_ints', default = 2, type = int)
+        if num_ints < 0 or num_ints > max: bad_request = True
+        loc_ints = request.args.get('loc_ints', default = 'last', type = str).lower()
+        if loc_ints not in choices:
+            bad_request = True
+
+        specs = request.args.get('specs', default = True, type = bool)
+        num_specs = request.args.get('page', default = 1, type = int)
+        if num_specs < 0 or num_specs > max: bad_request = True
+        loc_specs = request.args.get('loc_specs', default = 'last', type = str).lower()
+        if loc_specs not in choices:
+            bad_request = True
+
+        gib = request.args.get('gib', default = False, type = bool)
+
+        if bad_request == False:
+            # build password from given parameters
+            string = get_words(max, min, num_words, num_ints, num_specs)
+            if caps: string = add_caps(string, num_caps, loc_caps)
+            if string != "No password could be generated with the given parameters":
+                if ints: string = add_ints(string, num_ints, loc_ints)
+                if specs: string = add_specs(string, num_specs, loc_specs)
+                if gib: string = gibberish(string)
+            # create response json and status_code
+            response = jsonify({'password': string})
+            response.status_code = 200
+            return response
+        else:
+            response = jsonify("Bad request: Check that parameters are within acceptable range")
+            response.status_code = 400
+            return response
+    else:
+        response = jsonify("The method is not allowed for the requested URL")
+        response.status_code = 405
+        return response
 
 
-    def get_words(self):
-        #Concat random words and make sure final string is in MIN/MAX range
-        i = 0
-        self.string = ''
-        total_length = NUM_INTS + NUM_SPECS
-        while i < NUM_WORDS:
-            i = i + 1
-            word = random.choice(WORDS)
-            self.string = self.string + word
-            total_length = total_length + LENGTHS[word]
-            # reset and try again if string is too long
-            if total_length > MAX or total_length < MIN:
-                self.string = ''
-                i = 0
-                total_length = NUM_INTS + NUM_SPECS
-
-
-    def add_caps(self):
-        if CAPS == True:
+#Concat random words and make sure final string is in MIN/MAX range
+def get_words(max, min, num_words, num_ints, num_specs):
+    i = 0
+    string = ''
+    total_length = num_ints + num_specs
+    iterations = 0
+    while i < num_words:
+        i = i + 1
+        word = random.choice(WORDS)
+        string = string + word
+        total_length = total_length + LENGTHS[word]
+        # reset and try again if string is too long
+        if total_length > max or total_length < min:
+            iterations = iterations + 1
+            string = ''
             i = 0
-            start = 0
-            end = -1
-            while i < NUM_CAPS:
-                i = i + 1
-                if LOC_CAPS == 'first':
-                    self.string = self.string.replace(self.string[start],self.string[start].upper(),1)
-                elif LOC_CAPS == 'last':
-                    # sometimes matches earleir character than the last, hmmm whats the solution
-                    self.string = self.string.replace(self.string[end],self.string[end].upper(),1)
-                elif LOC_CAPS == 'random':
-                    length = len(self.string)
-                    index = random.randrange(length)
-                    self.string = self.string.replace(self.string[index],self.string[index].upper(),1)
-                else: pass
-                start = start + 1
-                end = end - 1
+            total_length = num_ints + num_specs
+            if iterations == 10000: # prevent endless looping; tries 10000 word combos
+                string = "No password could be generated with the given parameters"
+                break
+    return string
 
 
-    def add_ints(self):
-        if INTS == True:
-            # build approriate range
-            i = 0
-            range = 1
-            while i < NUM_INTS:
-                i = i + 1
-                range = range * 10
-            integer = random.randrange((range/10),range)
-            if LOC_INTS == 'first':
-                self.string = str(integer) + self.string
-            elif LOC_INTS == 'last':
-                self.string = self.string + str(integer)
-            elif LOC_INTS == 'random':
-                for int in str(integer):
-                    length = len(self.string)
-                    index = random.randrange(length)
-                    self.string = self.string[:index] + int + self.string[index:]
-            else: pass
+# add capital letters to password string
+def add_caps(string, num_caps, loc_caps):
+    i = 0
+    start = 0
+    end = -1
+    while i < num_caps:
+        i = i + 1
+        if loc_caps.lower() == 'first':
+            string = string.replace(string[start],string[start].upper(),1)
+        elif loc_caps.lower() == 'last':
+            # sometimes matches earleir character than the last, hmmm whats the solution
+            string = string.replace(string[end],string[end].upper(),1)
+        elif loc_caps.lower() == 'random':
+            length = len(string)
+            index = random.randrange(length)
+            string = string.replace(string[index],string[index].upper(),1)
+        else: pass
+        start = start + 1
+        end = end - 1
+    return string
 
 
-    def add_specs(self):
-        if SPECS == True:
-            i = 0
-            while i < NUM_SPECS:
-                i = i + 1
-                char = random.choice(SPECS_LIST)
-                if LOC_SPECS == 'first': self.string = char + self.string
-                elif LOC_SPECS == 'last': self.string = self.string + char
-                elif LOC_SPECS == 'random':
-                    length = len(self.string)
-                    index = random.randrange(length)
-                    self.string = self.string[:index] + char + self.string[index:]
-                else: pass
+# add integers to password string
+def add_ints(string, num_ints, loc_ints):
+    # build approriate range
+    i = 0
+    range = 1
+    while i < num_ints:
+        i = i + 1
+        range = range * 10
+    integer = random.randrange((range/10),range)
+    if loc_ints.lower() == 'first':
+        string = str(integer) + string
+    elif loc_ints.lower() == 'last':
+        string = string + str(integer)
+    elif loc_ints.lower() == 'random':
+        for int in str(integer):
+            length = len(string)
+            index = random.randrange(length)
+            string = string[:index] + int + string[index:]
+    else: pass
+    return string
 
 
-    def add_subs(self):
-        #substitute characters in string; leet
-        if SUBS == True:
-            pass
+# add special characters from specified list
+def add_specs(string, num_specs, loc_specs):
+    i = 0
+    while i < num_specs:
+        i = i + 1
+        char = random.choice(SPECS_LIST)
+        if loc_specs.lower() == 'first': string = char + string
+        elif loc_specs.lower() == 'last': string = string + char
+        elif loc_specs.lower() == 'random':
+            length = len(string)
+            index = random.randrange(length)
+            string = string[:index] + char + string[index:]
+        else: pass
+    return string
 
 
-    def gibberish(self):
-        #scramble string
-        if GIB == True:
-            l = len(self.string)
-            for c in self.string:
-                #switch characters in string randomly
-                index = random.randrange(l)
-                r = self.string[index]
-                self.string = self.string.replace(c,r,1)
-                self.string = self.string.replace(r,c,1)
-
-
-    def reset_defaults(self):
-        global MAX, MIN, NUM_WORDS, CAPS, NUM_CAPS, LOC_CAPS, INTS, NUM_INTS, LOC_INTS, SPECS, NUM_SPECS, LOC_SPECS, SPECS_LIST, SUBS, GIB
-        MAX = 16
-        MIN = 4
-        NUM_WORDS=2
-        CAPS = True
-        NUM_CAPS = 1
-        LOC_CAPS = 'first' #first, random, last
-        INTS = True
-        NUM_INTS = 2
-        LOC_INTS = 'last' #first, last, random
-        SPECS = True
-        NUM_SPECS = 1
-        LOC_SPECS = 'last' #first, last, random
-        SUBS = False
-        GIB = False
-        self.string = ''
+# scramble string randomly to create gibberish
+def gibberish(string):
+    l = len(string)
+    for c in string: #switch characters in string randomly
+        index = random.randrange(l)
+        r = string[index]
+        string = string.replace(c,r,1)
+        string = string.replace(r,c,1)
+    return string
 
 
 if __name__ == '__main__':
-    app.run()
-
-# ADD
-    # POST/PUT/DELETE error handling
-    # Return codes
-    # throttling
-    # bulk? json output; add endpoint
-    # how do I run app on namecheap host under blastomussa.dev domain?
-        # fucked up; tear down try again, find better instructions
+    app.run(debug=True)
