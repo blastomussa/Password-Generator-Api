@@ -11,4 +11,9 @@ WORKDIR /generator
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 
+# This should run on the docker container: http://127.0.0.1:5000
+# Expose the required port
+EXPOSE 5000
+
+# Must forward port when running container
 CMD [ "python3", "./app.py" ]
