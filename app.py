@@ -19,10 +19,20 @@ for word in words_dict:
         WORDS.append(word)
         LENGTHS.update({word:len(word)})
 
+
+#NOT WORKING YET
+@app.errorhandler(404)
+# inbuilt function which takes error as parameter
+def not_found(e):
+  return render_template("404.html")
+
+
+#WORKING
 @app.route('/api/help')
 def help():
     return render_template("help.html")
 
+#WORKING
 @app.route('/api/v1', methods=['GET','PUT','POST','DELETE'])
 def generate_pw():
     method = request.method
@@ -178,4 +188,4 @@ def gibberish(string):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
