@@ -19,3 +19,5 @@ HELP: https://blastomussa.dev/generate/api/help
   <li>Number of Special Characters (int): num_specs=1</li>
   <li>Location of Special Characters (str)*: loc_specs=last</li>
   <li>Gibberish (bool): gib=false</li>
+  <h4>* first, last, random</h4>
+<ol/>
