@@ -1,18 +1,23 @@
-API Endpoint live at: https://blastomussa.dev/generate/
+API Endpoint live at: https://blastomussa.dev/generate/api/v1 <br/>
+HELP: https://blastomussa.dev/generate/api/help
 
-URL PARAMETERS DEFAULTS
-
-Maximum length: MAX = 16 <br />
-Minimum length: MIN = 4 <br />
-Number of word: NUM_WORDS = 2 <br />
-Include capital letters: CAPS = True <br />
-Number of capitals: NUM_CAPS = 1 <br />
-Location of capitals: LOC_CAPS = 'first' #first, random, last <br />
-Include integers: INTS = True <br />
-Number of Integers: NUM_INTS = 2 <br />
-Location of integers: LOC_INTS = 'last' #first, last, random <br />
-Special Characters: SPECS = True <br />
-Number of special characters: NUM_SPECS = 1 <br />
-Location of special characters: LOC_SPECS = 'last' #first, last, random <br />
-Substitute characters for leet: SUBS = False <br />
-Scamble password into gibberish: GIB = False <br />
+<h1>Password Generator API</h1>
+<p>Descrption: This API can be used to programatically generate passwords according to specified parameters</p>
+<p>Example Usage: curl https://blastomussa.dev/generate/api/v1&quest;params=xxx&#38;param2=xxx</p>
+<h3>Parameters List with defaults</h3>
+<ol>
+  <li>Maximum (int): max=18</li>
+  <li>Minimum (int): min=8</li>
+  <li>Number of Words (int): num_words=2</li>
+  <li>Integers (bool): ints=true</li>
+  <li>Number of Integers (int): num_ints=2</li>
+  <li>Location of Integers (str)*: loc_ints=last</li>
+  <li>Capital letters (bool): caps=true</li>
+  <li>Number of Capitals (int): num_caps=1</li>
+  <li>Location of Capitals (str)*: loc_caps=first</li>
+  <li>Special Characters (bool): specs=true</li>
+  <li>Number of Special Characters (int): num_specs=1</li>
+  <li>Location of Special Characters (str)*: loc_specs=last</li>
+  <li>Gibberish (bool): gib=false</li>
+  <h4>* first, last, random</h4>
+<ol/>
