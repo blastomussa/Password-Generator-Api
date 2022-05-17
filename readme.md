@@ -1,4 +1,4 @@
-API Endpoint live at: https://blastomussa.dev/generate/api/v1
+API Endpoint live at: https://blastomussa.dev/generate/api/v1 <br/>
 HELP: https://blastomussa.dev/generate/api/help
 
 <h1>Password Generator API</h1>
