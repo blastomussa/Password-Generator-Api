@@ -1,3 +1,4 @@
+# docker build -f Dockerfile . -t blastomussa/flaskapp
 # Import latest python3 docker image
 FROM python:3
 

@@ -28,7 +28,7 @@ def not_found(e):
 
 
 #WORKING
-@app.route('/api/help')
+@app.route('/')
 def help():
     return render_template("help.html")
 
