@@ -1,4 +1,5 @@
-# docker build -f Dockerfile . -t blastomussa/flaskapp
+# docker build --no-cache -f Dockerfile . -t blastomussa/flaskapp
+# docker run -d -p 5001:5000 blastomussa/flaskapp
 # Import latest python3 docker image
 FROM python:3
 

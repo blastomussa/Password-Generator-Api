@@ -39,7 +39,7 @@ def generate_pw():
     bad_request = False
     choices = set(('first','last','random'))
     if method == 'GET':
-        # get URL parameter variables and validate user input
+        # GET PARAMETERS AND VALIDATE USER INPUT
         max = request.args.get('max', default = 18, type = int)
         min = request.args.get('min', default = 8, type = int)
         if max > 100 or max < min: bad_request = True
@@ -186,6 +186,6 @@ def gibberish(string):
         string = string.replace(r,c,1)
     return string
 
-
+# host='0.0.0.0' required to run inside docker image
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
