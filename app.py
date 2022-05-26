@@ -84,11 +84,11 @@ def generate_pw():
             response.status_code = 200
             return response
         else:
-            response = jsonify("Bad request: Check that parameters are within acceptable range")
+            response = jsonify({'Bad request': 'Check that parameters are within acceptable range'})
             response.status_code = 400
             return response
     else:
-        response = jsonify("The method is not allowed for the requested URL")
+        response = jsonify({"Method not found": "The method is not allowed for the requested URL. This endpoint only responds to GET requests."})
         response.status_code = 405
         return response
 
