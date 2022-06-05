@@ -1,0 +1,26 @@
+podTemplate(containers: [
+    containerTemplate(
+        name: 'python',
+        image: 'python:3.8.9',
+        command: 'sleep',
+        args: '30d'
+        ),
+]) {
+    node(POD_LABEL) {
+        stage('Test flask build') {
+            git 'https://github.com/blastomussa/Password-Generator-Api.git'
+            container('python') {
+                stage('Run the flask application') {
+                    sh '''
+                    python3 app.py
+                    '''
+                    }
+                stage("Test the flask application") {
+                    sh '''
+                    curl 127.0.0.1:5000
+                    '''
+                }
+            }
+        }
+    }
+}
