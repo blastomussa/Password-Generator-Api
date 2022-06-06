@@ -61,7 +61,7 @@ podTemplate(yaml: '''
               }
               stage('Build image and push to Dockerhub') {
                   sh '''
-                  /kaniko/executor --context `pwd` --destination blastomussa/flaskapp:2.0
+                  /kaniko/executor --context `pwd` --destination blastomussa/flaskappv2
                   '''
               }
            }
