@@ -23,7 +23,7 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 5000
-        readinessProde:
+        readinessProbe:
           httpGet:
             path: /api/v1
             port: 5000
