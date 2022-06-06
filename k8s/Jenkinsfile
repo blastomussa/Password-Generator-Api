@@ -78,7 +78,6 @@ podTemplate(yaml: '''
                 }
                 stage('Apply Changes') {
                     sh '''
-                    git clone 'https://github.com/blastomussa/Password-Generator-Api.git'
                     cd Password-Generator-Api/k8s
                     kubectl apply -f flask.yaml
                     '''
