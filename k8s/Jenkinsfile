@@ -15,6 +15,9 @@ podTemplate(yaml: '''
         - sleep
         args:
         - 9999999
+        volumeMounts:
+        - name: kaniko-secret
+          mountPath: /kaniko/.docker
       restartPolicy: Never
       volumes:
       - name: kaniko-secret
@@ -27,10 +30,12 @@ podTemplate(yaml: '''
     node(POD_LABEL) {
         stage('Test flask build') {
             container('python') {
-            git 'https://github.com/blastomussa/Password-Generator-Api.git'
                 stage('Run the flask application') {
                     sh '''
-                    python3 app.py
+                    git clone 'https://github.com/blastomussa/Password-Generator-Api.git'
+                    cd Password-Generator-Api
+                    pip install -r requirements.txt
+                    python3 app.py &
                     '''
                     }
                 stage("Test the flask application") {
@@ -40,26 +45,45 @@ podTemplate(yaml: '''
                 }
             }
         }
-        stage('Build Python Image') {
-        container('kaniko') {
-            stage('Build Dockerfile') {
-                sh '''
-                echo 'FROM python:3.8.9' > Dockerfile
-                echo 'RUN apt-get -y update' >> Dockerfile
-                echo 'RUN apt-get -y install git' >> Dockerfile
-                echo 'RUN git clone https://github.com/blastomussa/Password-Generator-Api.git /generator/' >> Dockerfile
-                echo 'WORKDIR /generator' >> Dockerfile
-                echo 'RUN pip3 install --no-cache-dir -r requirements.txt' >> Dockerfile
-                echo 'EXPOSE 5000' >> Dockerfile
-                echo 'CMD [ "python3", "./app.py" ]' >> Dockerfile
-                '''
-            }
-            stage('Build Docker image and push to hub') {
-                sh '''
-                /kaniko/executor --context `pwd` --destination blastomussa/flaskapp:2.0
-                '''
+        stage('Build Docker Image') {
+          container('kaniko') {
+              stage('Build Dockerfile') {
+                  sh '''
+                  echo 'FROM python:3.8.9' > Dockerfile
+                  echo 'RUN apt-get -y update' >> Dockerfile
+                  echo 'RUN apt-get -y install git' >> Dockerfile
+                  echo 'RUN git clone https://github.com/blastomussa/Password-Generator-Api.git /generator/' >> Dockerfile
+                  echo 'WORKDIR /generator' >> Dockerfile
+                  echo 'RUN pip3 install --no-cache-dir -r requirements.txt' >> Dockerfile
+                  echo 'EXPOSE 5000' >> Dockerfile
+                  echo 'CMD [ "python3", "./app.py" ]' >> Dockerfile
+                  '''
+              }
+              stage('Build image and push to Dockerhub') {
+                  sh '''
+                  /kaniko/executor --context `pwd` --destination blastomussa/flaskapp:2.0
+                  '''
+              }
+           }
+        }
+        stage('Rolling Upgrade') {
+            container('python') {
+                stage('Init Kubectl') {
+                    sh '''
+                    cd /
+                    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                    chmod +x ./kubectl
+                    mv kubectl /usr/local/bin/kubectl
+                    '''
+                }
+                stage('Apply Changes') {
+                    sh '''
+                    git clone 'https://github.com/blastomussa/Password-Generator-Api.git'
+                    cd Password-Generator-Api/k8s
+                    kubectl apply -f flask.yaml
+                    '''
+                }
             }
         }
     }
-}
 }
