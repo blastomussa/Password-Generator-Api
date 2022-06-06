@@ -20,7 +20,6 @@ for word in words_dict:
         LENGTHS.update({word:len(word)})
 
 
-#NOT WORKING YET
 @app.errorhandler(404)
 # inbuilt function which takes error as parameter
 def not_found(e):
