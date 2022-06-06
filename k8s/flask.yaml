@@ -8,7 +8,8 @@ spec:
       app: flask
   replicas: 4
   strategy:
-    type: rollingUpdate
+    type: RollingUpdate
+    rollingUpdate:
       maxUnavailable: 50%
       maxSurge: 0
   template:
