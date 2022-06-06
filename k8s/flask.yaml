@@ -7,9 +7,10 @@ spec:
     matchLabels:
       app: flask
   replicas: 4
-  rollingUpdate:
-    maxUnavailable: 50%
-    maxSurge: 0
+  strategy:
+    type: rollingUpdate
+      maxUnavailable: 50%
+      maxSurge: 0
   template:
     metadata:
       labels:
