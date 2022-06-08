@@ -28,9 +28,9 @@ podTemplate(yaml: '''
               path: config.json
 ''') {
     node(POD_LABEL) {
-        stage('Build flask application') {
+        stage('Test flask application') {
             container('python') {
-                stage('Clone GitHub Repo and run flask application in Python3') {
+                stage('Build flask application') {
                     sh '''
                     git clone 'https://github.com/blastomussa/Password-Generator-Api.git'
                     cd Password-Generator-Api
@@ -81,6 +81,22 @@ podTemplate(yaml: '''
                     cd Password-Generator-Api/k8s
                     kubectl apply -f flask.yaml
                     '''
+                }
+            }
+        }
+        stage('Test Staging Deployment') {
+            container('python') {
+                stage('Acceptance Test') {
+                }
+            }
+        }
+        stage('Deploy Flask Image to Production') {
+            container('python') {
+                stage('Install Azure CLI') {
+                }
+                stage('Push Docker Image to Azure Container Repository') {
+                }
+                stage('Deploy Flask Image to Azure K8s Service') {
                 }
             }
         }

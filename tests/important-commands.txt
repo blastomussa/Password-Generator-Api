@@ -1,0 +1,5 @@
+# Run interactive kubernetes pod
+kubectl run my-shell --rm -i --tty --image ubuntu -- bash
+kubectl exec --stdin --tty shell-demo -- /bin/bash
+
+# Run interactive Docker container
