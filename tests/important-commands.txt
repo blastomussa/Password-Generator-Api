@@ -1,5 +1,11 @@
 # Run interactive kubernetes pod
 kubectl run my-shell --rm -i --tty --image ubuntu -- bash
-kubectl exec --stdin --tty shell-demo -- /bin/bash
+kubectl exec --stdin --tty <pod> -- /bin/bash
 
 # Run interactive Docker container
+
+
+# install Kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x ./kubectl
+mv kubectl /usr/local/bin/kubectl
