@@ -76,7 +76,7 @@ podTemplate(yaml: '''
                     mv kubectl /usr/local/bin/kubectl
                     '''
                 }
-                stage('Rolling Upgrade flask k8s deployment') {
+                stage('Rolling Upgrade to flask k8s deployment') {
                     sh '''
                     cd Password-Generator-Api/k8s
                     kubectl apply -f flask.yaml

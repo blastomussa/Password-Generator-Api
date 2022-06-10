@@ -4,14 +4,17 @@ from flask import Flask, json, jsonify, request, render_template
 from english_dictionary.scripts.read_pickle import get_dict
 import random
 
+# initialize flask applications
 app = Flask(__name__)
 
-# this is the entry point for wsgi
+# this is the entry point for wsgi deployment
 application = app
 
+# list of allowed special characters
 SPECS_LIST = ["!","@","#","$","%","^","&","*","_","+","-","=","?","<",">","|"]
 WORDS = []
 LENGTHS = {}
+
 # Build GLOBAL length dictionary and word list
 words_dict = get_dict()
 for word in words_dict:
@@ -21,7 +24,7 @@ for word in words_dict:
 
 
 @app.errorhandler(404)
-# inbuilt function which takes error as parameter
+# built in function which takes error as parameter
 def not_found(e):
   return render_template("404.html")
 
