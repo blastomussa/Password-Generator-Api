@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: flask
-        image: blastomussa/flaskappv2
+        image: blastomussa/flaskappv2:latest
         imagePullPolicy: Always
         ports:
           - containerPort: 5000
