@@ -80,6 +80,7 @@ podTemplate(yaml: '''
                     sh '''
                     cd Password-Generator-Api/k8s
                     kubectl apply -f flask.yaml
+                    kubectl rollout restart deployment flask-deployment
                     '''
                 }
             }
