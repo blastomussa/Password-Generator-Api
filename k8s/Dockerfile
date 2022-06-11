@@ -1,7 +1,7 @@
 # To build: docker build --no-cache -f Dockerfile . -t blastomussa/flaskappv2
-# To test image: docker run -d -p 5001:5000 blastomussa/flaskappv2	
+# To test image: docker run -d -p 5001:5000 blastomussa/flaskappv2
 # Import latest python3 docker image
-FROM python:3.8.9
+FROM python:3.8-slim-bullseye
 
 # Install git
 RUN apt-get -y update
