@@ -71,7 +71,7 @@ def generate_pw():
         if loc_specs not in choices:
             bad_request = True
 
-        gib = request.args.get('gib', default = True, type = bool)
+        gib = request.args.get('gib', default = False, type = bool)
 
         if bad_request == False:
             # build password from given parameters
